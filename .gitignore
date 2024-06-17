@@ -1,0 +1,8 @@
+data/*
+__pycache__/*
+__pycache__/data_preparation.cpython-311.pyc
+__pycache__/training_evaluation.cpython-311.pyc
+models/mobilenet_v3_large/*
+models/resnet50/*
+models/vgg16/*
+models/vit_b_16/*
