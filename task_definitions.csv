@@ -1,0 +1,5 @@
+model_type,dataset,batch_size,start_time_ms,deadline_ms
+resnet50,cifar10,100,1656123600000,500
+vgg16,cifar10,100,1656123605000,700
+mobilenet_v3_large,cifar10,100,1656123610000,600
+vit_b_16,cifar10,100,1656123615000,800
