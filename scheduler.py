@@ -11,13 +11,12 @@ class Task:
         self.model_type = model_type
         self.dataset = dataset
         self.batch_size = int(batch_size)
-        self.start_time = int(start_time)
-        self.deadline = int(deadline)
-        self.priority = None  # Initially, priority is not set
+        self.start_time = int(start_time)  # start_time now assumed to be in milliseconds from some epoch
+        self.deadline = int(deadline)  # Deadline in milliseconds
+        self.priority = None
         self.missed_deadline = False
 
     def __lt__(self, other):
-        # Tasks are compared based on start_time for scheduling
         return self.start_time < other.start_time
 
 def load_model(model_path, device):
@@ -27,7 +26,6 @@ def load_model(model_path, device):
     return model
 
 def load_data_loader(dataset_name, data_directory, batch_size, model_type):
-    # Handle specific normalization for ViT
     if model_type == 'vit_b_16':
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
@@ -77,25 +75,34 @@ def execute_task(task, models_dir):
     if best_model:
         model_path = os.path.join(models_dir, task.model_type, best_model['variant'])
         model = load_model(model_path, device)
-        model.to(device)  # Ensure model is on the correct device
+        model.to(device)
         start_time = time.time()
 
         with torch.no_grad():
             for images, labels in data_loader:
-                images = images.to(device)  # Move images to the same device as the model
+                images = images.to(device)
                 outputs = model(images)
-        
+
         elapsed_time = time.time() - start_time
         elapsed_time_ms = elapsed_time * 1000  # Convert to milliseconds
 
-        # Check if the task met its deadline
-        if elapsed_time_ms > task.deadline:
-            task.missed_deadline = True
-            print(f"Task for {task.model_type} missed the deadline, taking {elapsed_time_ms:.2f}ms")
+        task.missed_deadline = elapsed_time_ms > task.deadline
 
-        print(f"Task for {task.model_type} completed in {elapsed_time:.2f}s with model variant {best_model['variant']}")
+        # Detailed output for each task execution
+        print(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] Task Execution Complete:")
+        print(f"  Model Type: {task.model_type}")
+        print(f"  Dataset: {task.dataset}")
+        print(f"  Deadline: {task.deadline} ms")
+        print(f"  Elapsed Time: {elapsed_time_ms:.2f} ms")
+        print(f"  Deadline Met: {'No' if task.missed_deadline else 'Yes'}")
+        print(f"  Model Variant: {best_model['variant']}\n")
+
+        return {'model_type': task.model_type, 'elapsed_time': elapsed_time, 'missed_deadline': task.missed_deadline}
+
     else:
         print(f"No suitable model variant found for {task.model_type}")
+        return None
+
 
 def read_task_definitions(csv_file_path):
     tasks = []
@@ -109,15 +116,27 @@ def read_task_definitions(csv_file_path):
 def main(csv_file_path, models_dir):
     tasks = read_task_definitions(csv_file_path)
     results = []
+
     while tasks:
         next_task = heapq.heappop(tasks)
-        execute_task(next_task, models_dir)
-        results.append(next_task)
+        current_time = int(time.time() * 1000)  # Current time in milliseconds
+        start_time = next_task.start_time
 
-    # Calculate deadline miss rate
+        if start_time > current_time:
+            wait_time = (start_time - current_time) / 1000  # Convert milliseconds to seconds
+            print(f"Waiting {wait_time:.2f} seconds to start task {next_task.model_type}")
+            time.sleep(wait_time)  # Delay execution until the start time
+
+        result = execute_task(next_task, models_dir)
+        if result:
+            results.append(result)
+
+    # Calculate and print final results
     total_tasks = len(results)
-    missed_count = sum(1 for task in results if task.missed_deadline)
+    missed_count = sum(1 for result in results if result['missed_deadline'])
     deadline_miss_rate = (missed_count / total_tasks) * 100 if total_tasks > 0 else 0
+
+    print("\nFinal Results:")
     print(f"Total tasks: {total_tasks}")
     print(f"Tasks that met the deadline: {total_tasks - missed_count}")
     print(f"Tasks that missed the deadline: {missed_count}")
