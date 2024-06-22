@@ -1,5 +1,5 @@
 model_type,dataset,batch_size,start_time_ms,deadline_ms
-resnet50,cifar10,100,5000,9000
+resnet50,cifar10,500,5000,9000
 resnet50,cifar10,100,5000,90000
 resnet50,cifar10,100,5000,90
-resnet50,cifar10,100,5000,9
+resnet50,cifar10,1000,5000,9

@@ -43,8 +43,8 @@ def load_data_loader(dataset_name, data_directory, batch_size, model_type):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616])
         ])
-    dataset = datasets.CIFAR10(root=data_directory, train=False, download=True, transform=transform)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+    dataset = datasets.CIFAR10(root=data_directory, train=False, download=False, transform=transform)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
 
 def predict_ddl_miss_chance(task, models_dir):
     models = []
