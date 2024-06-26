@@ -1,0 +1,5 @@
+task_id,model_type,dataset,batch_size,start_time_ms,deadline_ms,data_size
+1,resnet50,cifar10,1000,0,60000,10
+2,resnet50,cifar10,1000,100000,60000,10
+3,resnet50,cifar10,1000,10000,60000,10
+4,resnet50,cifar10,1000,20000,60000,10

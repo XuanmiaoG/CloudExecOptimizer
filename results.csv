@@ -1,0 +1,8 @@
+task_id,model_type,dataset,batch_size,start_time,actual_start_time,deadline,elapsed_time_ms,missed_deadline,model_variant,data_size
+1,resnet50,cifar10,1000,0,1313.2717609405518,60000,22705.086946487427,False,resnet50_original.pth,10
+4,resnet50,cifar10,1000,20000,23540.413856506348,60000,22797.56498336792,False,resnet50_original.pth,10
+3,resnet50,cifar10,1000,10000,43657.19532966614,60000,53891.95775985718,False,resnet50_original.pth,10
+2,resnet50,cifar10,1000,100000,101178.39074134827,60000,21799.044132232666,False,resnet50_original.pth,10
+
+total_tasks,tasks_met_deadline,tasks_missed_deadline,deadline_miss_rate
+4,4,0,0.0
